@@ -3,28 +3,31 @@
 	archiveVersion = 1;
 	classes = {
 	};
-	objectVersion = 46;
+	objectVersion = 47;
 	objects = {
 
 /* Begin PBXBuildFile section */
 		508DD6561C8C647200FC4457 /* main.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 508DD6551C8C647200FC4457 /* main.cpp */; };
+		508DD7071C8C6AA700FC4457 /* faces in CopyFiles */ = {isa = PBXBuildFile; fileRef = 508DD7061C8C6A9F00FC4457 /* faces */; };
 /* End PBXBuildFile section */
 
 /* Begin PBXCopyFilesBuildPhase section */
 		508DD6501C8C647200FC4457 /* CopyFiles */ = {
 			isa = PBXCopyFilesBuildPhase;
-			buildActionMask = 2147483647;
-			dstPath = /usr/share/man/man1/;
-			dstSubfolderSpec = 0;
+			buildActionMask = 12;
+			dstPath = "";
+			dstSubfolderSpec = 16;
 			files = (
+				508DD7071C8C6AA700FC4457 /* faces in CopyFiles */,
 			);
-			runOnlyForDeploymentPostprocessing = 1;
+			runOnlyForDeploymentPostprocessing = 0;
 		};
 /* End PBXCopyFilesBuildPhase section */
 
 /* Begin PBXFileReference section */
-		508DD6521C8C647200FC4457 /* biometrics01 */ = {isa = PBXFileReference; explicitFileType = "compiled.mach-o.executable"; includeInIndex = 0; path = biometrics01; sourceTree = BUILT_PRODUCTS_DIR; };
+		508DD6521C8C647200FC4457 /* biometrics01 */ = {isa = PBXFileReference; explicitFileType = "compiled.mach-o.executable"; includeInIndex = 0; name = biometrics01; path = "/Users/kyslik/Documents/School/2015-2016/SS/BIOM/biometrics01/build/Debug/biometrics01"; sourceTree = "<absolute>"; };
 		508DD6551C8C647200FC4457 /* main.cpp */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.cpp.cpp; path = main.cpp; sourceTree = "<group>"; };
+		508DD7061C8C6A9F00FC4457 /* faces */ = {isa = PBXFileReference; lastKnownFileType = folder; path = faces; sourceTree = "<group>"; };
 /* End PBXFileReference section */
 
 /* Begin PBXFrameworksBuildPhase section */
@@ -41,17 +44,9 @@
 		508DD6491C8C647200FC4457 = {
 			isa = PBXGroup;
 			children = (
+				508DD7061C8C6A9F00FC4457 /* faces */,
 				508DD6541C8C647200FC4457 /* biometrics01 */,
-				508DD6531C8C647200FC4457 /* Products */,
 			);
-			sourceTree = "<group>";
-		};
-		508DD6531C8C647200FC4457 /* Products */ = {
-			isa = PBXGroup;
-			children = (
-				508DD6521C8C647200FC4457 /* biometrics01 */,
-			);
-			name = Products;
 			sourceTree = "<group>";
 		};
 		508DD6541C8C647200FC4457 /* biometrics01 */ = {
@@ -97,14 +92,14 @@
 				};
 			};
 			buildConfigurationList = 508DD64D1C8C647200FC4457 /* Build configuration list for PBXProject "biometrics01" */;
-			compatibilityVersion = "Xcode 3.2";
+			compatibilityVersion = "Xcode 6.3";
 			developmentRegion = English;
 			hasScannedForEncodings = 0;
 			knownRegions = (
 				en,
 			);
 			mainGroup = 508DD6491C8C647200FC4457;
-			productRefGroup = 508DD6531C8C647200FC4457 /* Products */;
+			productRefGroup = 508DD6491C8C647200FC4457;
 			projectDirPath = "";
 			projectRoot = "";
 			targets = (
