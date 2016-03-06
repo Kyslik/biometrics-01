@@ -9,8 +9,20 @@
 #include <iostream>
 #include <opencv2/opencv.hpp>
 
+using namespace std;
+using namespace cv;
+
 int main(int argc, const char * argv[]) {
-    // insert code here...
-    std::cout << "CV ver. :" << CV_VERSION << std::endl;
+
+    vector<Mat> images;
+    vector<int> labels;
+    // images for first person
+    images.push_back(imread("./faces/subject01.centerlight.gif", CV_LOAD_IMAGE_GRAYSCALE)); labels.push_back(0);
+    cout << "wat: " << (bool) images[0].data << endl;
+    images.push_back(imread("./faces/subject01.glasses.gif", CV_LOAD_IMAGE_GRAYSCALE)); labels.push_back(0);
+    images.push_back(imread("./faces/subject01.happy.gif", CV_LOAD_IMAGE_GRAYSCALE)); labels.push_back(0);
+    // images for second person
+    images.push_back(imread("./faces/subject02.centerlight.gif", CV_LOAD_IMAGE_GRAYSCALE)); labels.push_back(1);
+
     return 0;
 }
