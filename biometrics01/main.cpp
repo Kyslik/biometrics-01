@@ -25,11 +25,14 @@ const int CROSS_RATIO = 80;
 const int SAMPLE_COUNT = 3;
 const char* DATA_FILE = "./data-model";
 const char* TEST_LABELS_FILE = "./data-labels";
+const char* TEST_PATHS_FILE = "./data-paths";
 
 inline int ceilPercent(int i, int p);
 inline bool fileExists (const string& file_name);
 void saveVector(vector<string> v, const string &file_name);
 void loadVector(vector<string> &v, const string &file_name);
+void saveVector(vector<int> v, const string &file_name);
+void loadVector(vector<int> &v, const string &file_name);
 
 int main(int argc, const char * argv[]) {
 
@@ -48,9 +51,11 @@ int main(int argc, const char * argv[]) {
     vector<string> test_images_paths;
     vector<int> test_labels;
 
-    if (fileExists(DATA_FILE) && fileExists(TEST_LABELS_FILE))
+    if (fileExists(DATA_FILE) && fileExists(TEST_LABELS_FILE) && fileExists(TEST_PATHS_FILE))
     {
-        loadVector(test_images_paths, TEST_LABELS_FILE);
+        loadVector(test_labels, TEST_LABELS_FILE);
+        loadVector(test_images_paths, TEST_PATHS_FILE);
+        ;
     }
 
     // load images, loop starts from 1 because first image is 01
@@ -91,7 +96,8 @@ int main(int argc, const char * argv[]) {
     Ptr<face::FaceRecognizer> model = face::createEigenFaceRecognizer(80, 3000.0);
     model->train(train_images, train_labels);
     model->save(DATA_FILE);
-    saveVector(test_images_paths, TEST_LABELS_FILE);
+    saveVector(test_images_paths, TEST_PATHS_FILE);
+    saveVector(test_labels, TEST_LABELS_FILE);
 
     //model->predict(test_images[4], p, j);
     //cout << "p: " << p << " j: " << j << endl;
@@ -120,6 +126,25 @@ void loadVector(vector<string> &v, const string &file_name)
     inf.open(file_name);
     if (!inf) abort();
     while (getline(inf, line)) v.push_back(line);
+}
+
+void saveVector(vector<int> v, const string &file_name)
+{
+    ofstream outf;
+    outf.open(file_name);
+    ostream_iterator<int> output_iterator(outf, "\n");
+    copy(v.begin(), v.end(), output_iterator);
+    outf.close();
+}
+
+void loadVector(vector<int> &v, const string &file_name)
+{
+    if (!fileExists(file_name)) abort();
+    string line;
+    ifstream inf;
+    inf.open(file_name);
+    if (!inf) abort();
+    while (getline(inf, line)) v.push_back(atoi(line.c_str()));
 }
 
 inline int ceilPercent(int i, int p)
