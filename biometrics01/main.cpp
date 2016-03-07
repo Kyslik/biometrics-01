@@ -22,8 +22,8 @@ using namespace cv;
 using namespace cv::face;
 
 
-const int CROSS_RATIO = 80;
-const int SAMPLE_COUNT = 16;
+const int CROSS_RATIO = 70;
+const int SAMPLE_COUNT = 15;
 const char* DATA_FILE = "./data-model";
 const char* TEST_LABELS_FILE = "./data-labels";
 const char* TEST_PATHS_FILE = "./data-paths";
@@ -62,9 +62,9 @@ int main(int argc, const char * argv[]) {
     bernoulli_distribution distribution(0.5);
 
     //eigen model
-    Ptr<BasicFaceRecognizer> model = createEigenFaceRecognizer(0);
+    Ptr<BasicFaceRecognizer> model = createEigenFaceRecognizer(10);
 
-    const array<string, 11> face_types = {"centerlight", "glasses", "happy", "leftlight", "noglasses", "normal", "rightlight", "sad", "sleepy", "surprised", "wink"};
+    const array<string, 11> face_types = {"centerlight", "glasses", "noglasses", "normal", "rightlight", "sad", "sleepy", "surprised", "wink", "leftlight", "happy"};
     const int train_size = ceilPercent(face_types.size(), CROSS_RATIO);
     vector<Mat> train_images;
     vector<int> train_labels;
@@ -73,6 +73,14 @@ int main(int argc, const char * argv[]) {
     vector<Mat> test_images;
     vector<string> test_images_paths;
     vector<int> test_labels;
+
+    int predicted = -1;
+
+//    model->load(DATA_FILE);
+//    Mat img = imread("./faces/not-face01.png", CV_LOAD_IMAGE_GRAYSCALE);
+//    model->predict(img, predicted, confidence);
+//    cout << "predicted: " << predicted << " correct: 1" << " confidence: " << confidence << endl;
+//    return 0;
 
     if (fileExists(DATA_FILE) && fileExists(TEST_LABELS_FILE) && fileExists(TEST_PATHS_FILE))
     {
@@ -90,7 +98,7 @@ int main(int argc, const char * argv[]) {
     }
     else
     {
-        for (int i = 1; i < SAMPLE_COUNT; i++)
+        for (int i = 1; i < SAMPLE_COUNT+ 1; i++)
         {
             //converting i to string
             char buffer[8];
@@ -104,7 +112,7 @@ int main(int argc, const char * argv[]) {
             for(const auto &face_type : face_types)
             {
                 string path = "./faces/subject" + number + "." + face_type + ".png";
-                if ((_train_size > 0 && distribution(generate)) || _test_size == 0)
+                if ((_train_size > 0 && distribution(generate)) || _test_size == 0) //distribution(generate) &&
                 {
                     //train Mat filling
                     train_images.push_back(imread(path, CV_LOAD_IMAGE_GRAYSCALE));
@@ -124,7 +132,6 @@ int main(int argc, const char * argv[]) {
 
         //train model
         model->train(train_images, train_labels);
-
         //save data for further use
         model->save(DATA_FILE);
         saveVector(test_images_paths, TEST_PATHS_FILE);
@@ -132,19 +139,25 @@ int main(int argc, const char * argv[]) {
     }
 
 
-    int predicted = -1;
-    //int p = -1;
-    double confidence = 0.0;
-    //model->predict(test_images[4], p, j);
-    //cout << "p: " << p << " j: " << j << endl;
-    model->setThreshold(500);
-    //model->set("threshold", 0.0);
+    model->setThreshold(0.0);
+    double fm = 0, fnm = 0;
+    int predictedLabel = 0;
+    
     for (int i = 0; i < test_images.size(); i++) {
-        model->predict(test_images[i], predicted, confidence);
-        cout << "predicted: " << predicted << " correct: " << test_labels[i] << " confidence: " << confidence << endl;
+        predictedLabel = model->predict(test_images[i]);
+        string result_message = format("Predicted class = %d / Actual class = %d.", predictedLabel, test_labels[i]);
+        cout << result_message << endl;
+        predicted = -1;
     }
 
-    saveEigenFaces(model);
+    cout << "fmr: " << fm/test_images.size() << endl;
+    cout << "fnmr: " << fnm/test_images.size() << endl;
+
+
+    //saveEigenFaces(model);
+
+    Mat mean = model->getMean();
+    imwrite(format("%s/mean.png", "."), norm_0_255(mean.reshape(1, test_images[0].rows)));
 
     return 0;
 }
@@ -207,7 +220,6 @@ void saveEigenFaces(Ptr<BasicFaceRecognizer> model)
     Mat W = model->getEigenVectors();
     // Get the sample mean from the training data
     Mat mean = model->getMean();
-    cout << "Total EigenFaces: " << W.cols << endl;
 
     for (int i = 0; i < min(10, W.cols); i++) {
         //string msg = format("Eigenvalue #%d = %.5f", i, eigenvalues.at<double>(i));
