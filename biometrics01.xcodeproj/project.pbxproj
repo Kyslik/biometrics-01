@@ -25,9 +25,9 @@
 /* End PBXCopyFilesBuildPhase section */
 
 /* Begin PBXFileReference section */
-		508DD6521C8C647200FC4457 /* biometrics01 */ = {isa = PBXFileReference; explicitFileType = "compiled.mach-o.executable"; includeInIndex = 0; name = biometrics01; path = "/Users/kyslik/Documents/School/2015-2016/SS/BIOM/biometrics01/build/Debug/biometrics01"; sourceTree = "<absolute>"; };
 		508DD6551C8C647200FC4457 /* main.cpp */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.cpp.cpp; path = main.cpp; sourceTree = "<group>"; };
 		508DD7061C8C6A9F00FC4457 /* faces */ = {isa = PBXFileReference; lastKnownFileType = folder; path = faces; sourceTree = "<group>"; };
+		50A2D62E1C8CF13F00FFE891 /* biometrics01 */ = {isa = PBXFileReference; explicitFileType = "compiled.mach-o.executable"; includeInIndex = 0; path = biometrics01; sourceTree = BUILT_PRODUCTS_DIR; };
 /* End PBXFileReference section */
 
 /* Begin PBXFrameworksBuildPhase section */
@@ -46,6 +46,7 @@
 			children = (
 				508DD7061C8C6A9F00FC4457 /* faces */,
 				508DD6541C8C647200FC4457 /* biometrics01 */,
+				50A2D62E1C8CF13F00FFE891 /* biometrics01 */,
 			);
 			sourceTree = "<group>";
 		};
@@ -74,7 +75,7 @@
 			);
 			name = biometrics01;
 			productName = biometrics01;
-			productReference = 508DD6521C8C647200FC4457 /* biometrics01 */;
+			productReference = 50A2D62E1C8CF13F00FFE891 /* biometrics01 */;
 			productType = "com.apple.product-type.tool";
 		};
 /* End PBXNativeTarget section */
@@ -224,6 +225,7 @@
 					"-lopencv_video",
 					"-lopencv_videoio",
 					"-lopencv_videostab",
+					"-lopencv_face",
 				);
 				PRODUCT_NAME = "$(TARGET_NAME)";
 			};
@@ -254,6 +256,7 @@
 					"-lopencv_video",
 					"-lopencv_videoio",
 					"-lopencv_videostab",
+					"-lopencv_face",
 				);
 				PRODUCT_NAME = "$(TARGET_NAME)";
 			};
@@ -278,6 +281,7 @@
 				508DD65B1C8C647200FC4457 /* Release */,
 			);
 			defaultConfigurationIsVisible = 0;
+			defaultConfigurationName = Release;
 		};
 /* End XCConfigurationList section */
 	};
