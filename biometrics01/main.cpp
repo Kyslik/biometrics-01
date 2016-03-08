@@ -61,104 +61,105 @@ int main(int argc, const char * argv[]) {
     mt19937 generate(rd());
     bernoulli_distribution distribution(0.5);
 
-    //eigen model
-    Ptr<BasicFaceRecognizer> model = createEigenFaceRecognizer(10);
+    //vector of eigen models
+    vector<Ptr<BasicFaceRecognizer>> models(SAMPLE_COUNT);
+
+    for(auto &model : models)
+        model = createEigenFaceRecognizer(3);
 
     const array<string, 11> face_types = {"centerlight", "glasses", "noglasses", "normal", "rightlight", "sad", "sleepy", "surprised", "wink", "leftlight", "happy"};
+
     const int train_size = ceilPercent(face_types.size(), CROSS_RATIO);
-    vector<Mat> train_images;
-    vector<int> train_labels;
+    vector<vector<Mat>> train_images(SAMPLE_COUNT);
+    vector<vector<int>> train_labels(SAMPLE_COUNT);
 
     const int test_size = face_types.size() - train_size;
-    vector<Mat> test_images;
-    vector<string> test_images_paths;
-    vector<int> test_labels;
+    vector<vector<Mat>> test_images(SAMPLE_COUNT);
+    vector<vector<int>> test_labels(SAMPLE_COUNT);
 
-    int predicted = -1;
-
-//    model->load(DATA_FILE);
-//    Mat img = imread("./faces/not-face01.png", CV_LOAD_IMAGE_GRAYSCALE);
-//    model->predict(img, predicted, confidence);
-//    cout << "predicted: " << predicted << " correct: 1" << " confidence: " << confidence << endl;
-//    return 0;
-
-    if (fileExists(DATA_FILE) && fileExists(TEST_LABELS_FILE) && fileExists(TEST_PATHS_FILE))
+    for (int i = 0; i < SAMPLE_COUNT; i++)
     {
-        loadVector(test_labels, TEST_LABELS_FILE);
-        loadVector(test_images_paths, TEST_PATHS_FILE);
-        if (test_labels.size() != test_images_paths.size()) return -1;
+        //converting i to string
+        char buffer[8];
+        sprintf(buffer, "%02d", i + 1);
+        string number(buffer);
 
-        model->load(DATA_FILE);
+        //init sizes for next iteration of loop
+        int _train_size = train_size;
+        int _test_size = test_size;
 
-        for ( auto &i : test_images_paths ) {
-            if (fileExists(i))
-                test_images.push_back(imread(i, CV_LOAD_IMAGE_GRAYSCALE));
-            else return -1;
-        }
-    }
-    else
-    {
-        for (int i = 1; i < SAMPLE_COUNT+ 1; i++)
+        for(const auto &face_type : face_types)
         {
-            //converting i to string
-            char buffer[8];
-            sprintf(buffer, "%02d", i);
-            string number(buffer);
-
-            //init sizes for next iteration of loop
-            int _train_size = train_size;
-            int _test_size = test_size;
-
-            for(const auto &face_type : face_types)
+            string path = "./faces/subject" + number + "." + face_type + ".png";
+            if ((_train_size > 0 && distribution(generate)) || _test_size == 0)
             {
-                string path = "./faces/subject" + number + "." + face_type + ".png";
-                if ((_train_size > 0 && distribution(generate)) || _test_size == 0) //distribution(generate) &&
+                //train Mat filling
+                train_images[i].push_back(imread(path, CV_LOAD_IMAGE_GRAYSCALE));
+                train_labels[i].push_back(i);
+                _train_size--;
+            }
+            else
+            {
+                //test Mat filling
+                test_images[i].push_back(imread(path, CV_LOAD_IMAGE_GRAYSCALE));
+                test_labels[i].push_back(i);
+                _test_size--;
+            }
+        }
+
+        models[i]->train(train_images[i], train_labels[i]);
+    }
+
+
+    //tpr
+
+    //fmr = fpr uz mam a tpr = 100 - fmr
+    for (int g = 0; g < 10100; g += 100)
+    {
+        double fnm = 0;
+        int fnmc = 0;
+        double fm = 0;
+        int fmc = 0;
+
+        double tp = 0;
+
+        for (int i = 0; i < SAMPLE_COUNT; i++) {
+            models[i]->setThreshold(g);
+
+            for (int j = 0; j < test_size; j++)
+            {
+                //predict test images known to model
+                int p = models[i]->predict(test_images[i][j]);
+
+                if (p == -1)
                 {
-                    //train Mat filling
-                    train_images.push_back(imread(path, CV_LOAD_IMAGE_GRAYSCALE));
-                    train_labels.push_back(i);
-                    _train_size--;
+                    fm++;
+                } else
+                {
+                    tp++;
                 }
-                else
-                {
-                    //test Mat filling
-                    test_images.push_back(imread(path, CV_LOAD_IMAGE_GRAYSCALE));
-                    test_images_paths.push_back(path);
-                    test_labels.push_back(i);
-                    _test_size--;
+                fmc++;
+            }
+
+            for (int j = 0; j < SAMPLE_COUNT; j++)
+            {
+                for (int k = 0; k < test_size; k++) {
+                    if (i != j)
+                    {
+                        if (models[i]->predict(test_images[j][k]) != -1)
+                        {
+                            fnm++;
+                        }
+
+                        fnmc++;
+                    }
                 }
             }
         }
 
-        //train model
-        model->train(train_images, train_labels);
-        //save data for further use
-        model->save(DATA_FILE);
-        saveVector(test_images_paths, TEST_PATHS_FILE);
-        saveVector(test_labels, TEST_LABELS_FILE);
+        //cout << g << "," << fm/fmc << "," << fnm/fnmc << endl;
+        //cout << fnm/fnmc << "," << tp/fmc << endl;
     }
-
-
-    model->setThreshold(0.0);
-    double fm = 0, fnm = 0;
-    int predictedLabel = 0;
-    
-    for (int i = 0; i < test_images.size(); i++) {
-        predictedLabel = model->predict(test_images[i]);
-        string result_message = format("Predicted class = %d / Actual class = %d.", predictedLabel, test_labels[i]);
-        cout << result_message << endl;
-        predicted = -1;
-    }
-
-    cout << "fmr: " << fm/test_images.size() << endl;
-    cout << "fnmr: " << fnm/test_images.size() << endl;
-
-
-    //saveEigenFaces(model);
-
-    Mat mean = model->getMean();
-    imwrite(format("%s/mean.png", "."), norm_0_255(mean.reshape(1, test_images[0].rows)));
-
     return 0;
 }
 
